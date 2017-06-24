@@ -3,25 +3,46 @@
 @author: Jean-Gabriel JOLLY
 """
 
+#===============
+#Importing modules
+#===============
+
+#modules for GUI
 from tkinter import *
+from tkinter.filedialog import *
+from tkinter.messagebox import *
+
+#modules for image processing
 import PIL
 from PIL import Image
+
+#module for Manage files and use system commands
 import os
+import glob
+
+#===============
+#variables declaration
+#===============
 
 
-
+#List of rectangles displays on screen
 global rectangleList
 rectangleList=[]
 
-global numberImage, numberRectangle,totalRectangle
-numberImage, numberRectangle,totalRectangle = 0,0,0
+#Counters for managing rectangles and pictures
+global numberImage, numberRectangle,totalRectangle,numberPicture
+numberImage, numberRectangle,totalRectangle,numberPicture = 0,0,0,0
 
 #Square position
 global x1,x2,y1,y2
 x1,x2,y1,y2=0,0,0,0
+
+#===============
+#===============
 #===============
 
 
+#Square position
 def leftClick(event):
     chaine.configure(text = str(event.x)+" "+str(event.y))
     global x1,y1
@@ -45,14 +66,13 @@ def releaseLeftClick(event):
     ####CROPPING PART#####
     area = (x1/hpercent, y1/hpercent, x2/hpercent, y2/hpercent)
     cropped_img = img.crop(area)
-    cropped_img.save('name' + str(totalRectangle) + '.png')
+    print(outputDirectory+'/name' + str(totalRectangle) + '.png')
+    cropped_img.save(outputDirectory+'/name' + str(totalRectangle) + '.png')
     ######################
     
 def middleClick(event):
-    global numberRectangle
-    numberRectangle += 1
-    id1=cadre.create_rectangle(10,10,12,12)
-    cadre.delete(id1)
+    global numberPicture
+    numberPicture += 1
     
 def rightClick(event):
     global rectangleList, numberRectangle, totalRectangle
@@ -60,33 +80,50 @@ def rightClick(event):
         chaine.configure(text = "Erasing frame number ="+str(numberRectangle))
         cadre.delete(rectangleList[len(rectangleList)-1])
         del rectangleList[len(rectangleList)-1]
-        os.remove("name" + str(totalRectangle) + ".png")
+        os.remove(outputDirectory+'/name' + str(totalRectangle) + '.png')
         numberRectangle -= 1
         totalRectangle -= 1
     else:
         chaine.configure(text = "Nothing to erase")
         
 
+
+
 fen = Tk()
-fen.title('Very Fast Multiple Cropping Tool')
-height=fen.winfo_screenwidth() #^\/
-width=fen.winfo_screenheight() #<>
-photo = PhotoImage(file="image3.png")
+
+#Ask for directory
+showwarning('Instructions', 'Enter the image folder')
+inputDirectory = askdirectory(initialdir='C:/Users/%s')
+showwarning('Instructions', 'Enter the destination folder')
+outputDirectory = askdirectory(initialdir='C:/Users/%s')
+#=================
+
+#
+listPictures = sorted(glob.glob(inputDirectory + '/*.png'))
+#
 
 
+print(numberPicture)
+print(listPictures[numberPicture])
+photo = PhotoImage(file=listPictures[numberPicture])
 
 ###DISPLAY RESIZE MODULE###
 baseheight = (fen.winfo_screenwidth()-1000)  #size of the height of the screen
-img = Image.open("image3.png")
+############ A MOFIFIER PLUS TARD  ^^^^^^^^
+img = Image.open(listPictures[numberPicture])
 hpercent = ((baseheight / float(img.size[1])))
 print(hpercent)
 wsize = int((float(img.size[0]) * float(hpercent)))
 img2 = img.resize((wsize, baseheight), PIL.Image.ANTIALIAS)
 ###########################
 
+
+
+############ A MOFIFIER PLUS TARD
 img2.save("temporaryFile.png")
 #photo2 = PhotoImage(file="image32bis.png")
 photo2 = PhotoImage(file="temporaryFile.png")
+############ A MOFIFIER PLUS TARD
 
 cadre = Canvas(fen, width=photo2.width(), height=photo2.height(), bg="light yellow")
 
@@ -103,12 +140,12 @@ chaine.pack()
 rectangle=cadre.create_rectangle(0,0,0,0)
 
 fen.mainloop()
-
 os.remove("temporaryFile.png")
+
+
+
 
 print(numberImage)
 print(numberRectangle)
 print(rectangleList)
-
-print(height)
-print(width)
+print(listPictures)
