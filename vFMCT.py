@@ -71,9 +71,39 @@ def releaseLeftClick(event):
     ######################
     
 def middleClick(event):
-    global numberPicture
+    global numberPicture,photo,photo2,img,rectangle
+    print("nomberPictures"+str(numberPicture))
     numberPicture += 1
-    
+    if numberPicture < len(listPictures):
+
+        photo = PhotoImage(file=listPictures[numberPicture])
+
+        ###DISPLAY RESIZE MODULE###
+        baseheight = (fen.winfo_screenwidth()-1000)  #size of the height of the screen
+        ############ A MOFIFIER PLUS TARD  ^^^^^^^^
+        img = Image.open(listPictures[numberPicture])
+        hpercent = ((baseheight / float(img.size[1])))
+        print(hpercent)
+        wsize = int((float(img.size[0]) * float(hpercent)))
+        img2 = img.resize((wsize, baseheight), PIL.Image.ANTIALIAS)
+        ###########################
+
+
+
+        ############ A MOFIFIER PLUS TARD
+        img2.save("temporaryFile.png")
+        #photo2 = PhotoImage(file="image32bis.png")
+        photo2 = PhotoImage(file="temporaryFile.png")
+        ############ A MOFIFIER PLUS TARD
+
+        cadre.delete(aff)
+        cadre.create_image(0, 0, anchor=NW, image=photo2)
+        rectangle=cadre.create_rectangle(0,0,0,0)
+    else:
+        chaine.configure(text = "No More pictures")
+##########################
+##########################
+##########################
 def rightClick(event):
     global rectangleList, numberRectangle, totalRectangle
     if numberRectangle > 0:
@@ -127,12 +157,14 @@ photo2 = PhotoImage(file="temporaryFile.png")
 
 cadre = Canvas(fen, width=photo2.width(), height=photo2.height(), bg="light yellow")
 
-cadre.create_image(0, 0, anchor=NW, image=photo2) #BUG
+aff=cadre.create_image(0, 0, anchor=NW, image=photo2) #BUG
+
 cadre.bind("<Button-1>", leftClick)
 cadre.bind("<B1-Motion>", holdLeftClick)
 cadre.bind("<ButtonRelease-1>", releaseLeftClick)
 cadre.bind("<Button-2>", middleClick)
 cadre.bind("<ButtonRelease-3> ", rightClick)
+
 cadre.pack()
 chaine = Label(fen)
 chaine.pack()
@@ -140,12 +172,6 @@ chaine.pack()
 rectangle=cadre.create_rectangle(0,0,0,0)
 
 fen.mainloop()
+
 os.remove("temporaryFile.png")
 
-
-
-
-print(numberImage)
-print(numberRectangle)
-print(rectangleList)
-print(listPictures)
