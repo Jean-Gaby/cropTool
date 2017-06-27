@@ -63,11 +63,22 @@ def releaseLeftClick(event):
     rectangleList.append(cadre.create_rectangle(x1,y1,x2,y2))
     numberRectangle += 1
     totalRectangle += 1
+
+    
+    ####Selection management PART#####
+    if x1 < x2 and y1 < y2:
+        area = (x1/hpercent, y1/hpercent, x2/hpercent, y2/hpercent)
+    if x2 < x1 and y2 < y1:
+        area = (x2/hpercent, y2/hpercent, x1/hpercent, y1/hpercent)
+    if x2 < x1 and y1 < y2:
+        area = (x2/hpercent, y1/hpercent, x1/hpercent, y2/hpercent)
+    if x1 < x2 and y2 < y1:
+        area = (x1/hpercent, y2/hpercent, x2/hpercent, y1/hpercent)
+    
     ####CROPPING PART#####
-    area = (x1/hpercent, y1/hpercent, x2/hpercent, y2/hpercent)
     cropped_img = img.crop(area)
     print(outputDirectory+'/name' + str(totalRectangle) + '.png')
-    cropped_img.save(outputDirectory+'/name' + str(totalRectangle) + '.png')
+    cropped_img.save(outputDirectory+'/name' + str(totalRectangle) + '.png') #test bug here
     ######################
     
 def middleClick(event):
@@ -120,6 +131,7 @@ def rightClick(event):
 
 
 fen = Tk()
+fen.title('Very Fast Multiple Cropping Tool')
 
 #Ask for directory
 showwarning('Instructions', 'Enter the image folder')
