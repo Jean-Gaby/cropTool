@@ -81,7 +81,7 @@ def releaseLeftClick(event):
     ######################
     
 def middleClick(event):
-    global numberPicture,photo,photo2,img,rectangle
+    global numberPicture,photo,photo2,img,rectangle,numberRectangle
     numberPicture += 1
     if numberPicture < len(listPictures):
 
@@ -92,6 +92,7 @@ def middleClick(event):
         cadre.delete(aff)
         cadre.create_image(0, 0, anchor=NW, image=photo2)
         rectangle=cadre.create_rectangle(0,0,0,0)
+        numberRectangle = 0
 
     else:
         chaine.configure(text = "No More pictures")
@@ -151,8 +152,6 @@ outputDirectory = askdirectory(initialdir='C:/Users/%s')
 
 #
 listPictures = sorted(glob.glob(inputDirectory + '/*.png'))
-print(listPictures)
-print(len(listPictures))
 
 ###
 if len(listPictures)>0:
