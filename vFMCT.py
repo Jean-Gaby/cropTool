@@ -67,16 +67,17 @@ def releaseLeftClick(event):
     
     ####Selection orientation management PART#####
     if x1 < x2 and y1 < y2:
-        area = (x1/hpercent, y1/hpercent, x2/hpercent, y2/hpercent)
+        area = (int(x1/hpercent), int(y1/hpercent), int(x2/hpercent), int(y2/hpercent))
     elif x2 < x1 and y2 < y1:
-        area = (x2/hpercent, y2/hpercent, x1/hpercent, y1/hpercent)
+        area = (int(x2/hpercent), int(y2/hpercent), int(x1/hpercent), int(y1/hpercent))
     elif x2 < x1 and y1 < y2:
-        area = (x2/hpercent, y1/hpercent, x1/hpercent, y2/hpercent)
+        area = (int(x2/hpercent), int(y1/hpercent), int(x1/hpercent),int(y2/hpercent))
     elif x1 < x2 and y2 < y1:
-        area = (x1/hpercent, y2/hpercent, x2/hpercent, y1/hpercent)
+        area = (int(x1/hpercent), int(y2/hpercent), int(x2/hpercent), int(y1/hpercent))
     
     ####CROPPING PART#####
     cropped_img = img.crop(area)
+    print(outputDirectory+'/name' + str(totalRectangle) + '.png')
     cropped_img.save(outputDirectory+'/name' + str(totalRectangle) + '.png') #test bug here
     ######################
     
@@ -120,7 +121,10 @@ def imageDisplay():
     photo = PhotoImage(file=listPictures[numberPicture])
 
     ###DISPLAY RESIZE MODULE###
-    baseheight = (fen.winfo_screenwidth()-1000)  #size of the height of the screen
+    baseheight = (fen.winfo_screenheight())  #size of the height of the screen
+    print(fen.winfo_screenwidth())
+    print(fen.winfo_screenheight())
+    print(baseheight)
     ############ A MOFIFIER PLUS TARD  ^^^^^^^^
     img = Image.open(listPictures[numberPicture])
     hpercent = ((baseheight / float(img.size[1])))
@@ -152,6 +156,7 @@ outputDirectory = askdirectory(initialdir='C:/Users/%s')
 
 #
 listPictures = sorted(glob.glob(inputDirectory + '/*.png'))
+
 
 ###
 if len(listPictures)>0:
