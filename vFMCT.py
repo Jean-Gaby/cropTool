@@ -8,9 +8,10 @@
 #===============
 
 #modules for GUI
+#from tkinter import *
 from tkinter import *
-from tkinter.filedialog import *
-from tkinter.messagebox import *
+from tkinter.filedialog import askdirectory
+from tkinter.messagebox import showwarning
 
 #modules for image processing
 import PIL
@@ -56,7 +57,7 @@ def holdLeftClick(event):
     
 def releaseLeftClick(event):
     cadre.coords(rectangle, 0, 0, 0, 0)
-    global x2,y2,numberRectangle,rectangleList,totalRectangle
+    global x2,y2,numberRectangle,rectangleList,totalRectangle,hpercent
     chaine.configure(text = "Number of frames:" + str(numberRectangle+1))
     x2=event.x
     y2=event.y
@@ -77,7 +78,6 @@ def releaseLeftClick(event):
     
     ####CROPPING PART#####
     cropped_img = img.crop(area)
-    print(outputDirectory+'/name' + str(totalRectangle) + '.png')
     cropped_img.save(outputDirectory+'/name' + str(totalRectangle) + '.png') #test bug here
     ######################
     
@@ -86,14 +86,17 @@ def middleClick(event):
     numberPicture += 1
     if numberPicture < len(listPictures):
 
-        photo = PhotoImage(file=listPictures[numberPicture])
-
         imageDisplay()
 
         cadre.delete(aff)
         cadre.create_image(0, 0, anchor=NW, image=photo2)
         rectangle=cadre.create_rectangle(0,0,0,0)
         numberRectangle = 0
+        
+        #Removing old rectangles
+        for i in rectangleList:
+            cadre.delete(i)
+        ########################
 
     else:
         chaine.configure(text = "No More pictures")
@@ -118,13 +121,13 @@ def rightClick(event):
 
 def imageDisplay():
     global numberPicture,photo,photo2,img,rectangle,hpercent
-    photo = PhotoImage(file=listPictures[numberPicture])
+    
+    #photo = PhotoImage(file=listPictures[numberPicture])
+    im=Image.open(listPictures[numberPicture]) #test test test
+    photo = PhotoImage(im)
 
     ###DISPLAY RESIZE MODULE###
-    baseheight = (fen.winfo_screenheight())  #size of the height of the screen
-    print(fen.winfo_screenwidth())
-    print(fen.winfo_screenheight())
-    print(baseheight)
+    baseheight = (int(fen.winfo_screenheight()*0.85))#size of the height of the screen
     ############ A MOFIFIER PLUS TARD  ^^^^^^^^
     img = Image.open(listPictures[numberPicture])
     hpercent = ((baseheight / float(img.size[1])))
@@ -139,7 +142,12 @@ def imageDisplay():
     ############ A MOFIFIER PLUS TARD
     
     
-    
+##########################
+##########################
+##########################
+##########################
+##########################
+##########################
     
 
 
@@ -154,14 +162,20 @@ showwarning('Instructions', 'Enter the destination folder')
 outputDirectory = askdirectory(initialdir='C:/Users/%s')
 #=================
 
-#
+#list images in the forlder
 listPictures = sorted(glob.glob(inputDirectory + '/*.png'))
-
+listPictures2 = sorted(glob.glob(inputDirectory + '/*.jpg'))
+listPictures = listPictures + listPictures2
+print(listPictures)
 
 ###
 if len(listPictures)>0:
     imageDisplay()
     cadre = Canvas(fen, width=photo2.width(), height=photo2.height(), bg="light yellow")
+    
+    w, h = photo2.width(), photo2.height()+20
+    fen.geometry("%dx%d+0+0" % (w, h))
+    
     aff=cadre.create_image(0, 0, anchor=NW, image=photo2) #BUG
     cadre.bind("<Button-1>", leftClick)
     cadre.bind("<B1-Motion>", holdLeftClick)
