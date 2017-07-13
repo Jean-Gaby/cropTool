@@ -28,22 +28,43 @@ import glob
 
 #List of rectangles displays on screen
 global rectangleList
-rectangleList=[]
+rectangleList=[[],[],[],[],[],[],[],[],[],[]]
 
 #Counters for managing rectangles and pictures
 global numberImage, numberRectangle,totalRectangle,numberPicture
 numberImage, numberRectangle,totalRectangle,numberPicture = 0,0,0,0
 
+global numberTotalImagePerLabel
+numberTotalImagePerLabel = [0,0,0,0,0,0,0,0,0,0]
+
+global numberImagePerLabel
+numberImagePerLabel = [0,0,0,0,0,0,0,0,0,0]
+
 #Square position
 global x1,x2,y1,y2
 x1,x2,y1,y2=0,0,0,0
 
+# for select the folder
+global selectFolder
+selectFolder = 0
+
+global listFolder
+listFolder = ["nope","nope","nope","nope","nope","nope","nope","nope","nope","nope"]
+
+global listLabel
+listLabel = ["nope","nope","nope","nope","nope","nope","nope","nope","nope","nope"]
+
+global labelDisplay
+labelDisplay = "txt"
+
 #===============
 #===============
 #===============
 
 
 #Square position
+
+
 def leftClick(event):
     chaine.configure(text = str(event.x)+" "+str(event.y))
     global x1,y1
@@ -51,19 +72,24 @@ def leftClick(event):
     y1=event.y
 
 def holdLeftClick(event):
-    global numberRectangle
     chaine.configure(text = str(event.x)+" "+str(event.y)+"Frame object number "+str(numberRectangle))
     cadre.coords(rectangle, x1,y1,event.x,event.y)
     
 def releaseLeftClick(event):
     cadre.coords(rectangle, 0, 0, 0, 0)
-    global x2,y2,numberRectangle,rectangleList,totalRectangle,hpercent
-    chaine.configure(text = "Number of frames:" + str(numberRectangle+1))
+    global x2,y2,numberRectangle,rectangleList,totalRectangle,hpercent,numberImagePerLabel,numberTotalImagePerLabel
+    chaine.configure(text = "Number of frames:" + str(numberRectangle+1)+" Selected folder: "+listLabel[int(selectFolder)])
     x2=event.x
     y2=event.y
-    rectangleList.append(cadre.create_rectangle(x1,y1,x2,y2))
+    rectangleList[int(selectFolder)].append(cadre.create_rectangle(x1,y1,x2,y2))
     numberRectangle += 1
+    numberImagePerLabel[int(selectFolder)] = numberImagePerLabel[int(selectFolder)]+1
     totalRectangle += 1
+    numberTotalImagePerLabel[int(selectFolder)] = numberTotalImagePerLabel[int(selectFolder)]+1
+    
+
+    print(numberTotalImagePerLabel)
+    print(numberImagePerLabel)
 
     
     ####Selection orientation management PART#####
@@ -78,11 +104,11 @@ def releaseLeftClick(event):
     
     ####CROPPING PART#####
     cropped_img = img.crop(area)
-    cropped_img.save(outputDirectory+'/name' + str(totalRectangle) + '.png') #test bug here
+    cropped_img.save(listFolder[int(selectFolder)]+"/"+listLabel[int(selectFolder)] + str(numberTotalImagePerLabel[int(selectFolder)]) + '.png') #test bug here
     ######################
     
 def middleClick(event):
-    global numberPicture,photo,photo2,img,rectangle,numberRectangle
+    global numberPicture,photo,photo2,img,rectangle,numberRectangle,numberImagePerLabel
     numberPicture += 1
     if numberPicture < len(listPictures):
 
@@ -92,15 +118,17 @@ def middleClick(event):
         cadre.create_image(0, 0, anchor=NW, image=photo2)
         rectangle=cadre.create_rectangle(0,0,0,0)
         numberRectangle = 0
+        numberImagePerLabel = [0,0,0,0,0,0,0,0,0,0]
         
         #Removing old rectangles
-        for i in rectangleList:
-            cadre.delete(i)
+        for j in range(0,8,1):
+            for i in rectangleList[j]:
+                cadre.delete(i)
         ########################
 
     else:
         chaine.configure(text = "No More pictures")
-        showwarning("No More pictures")
+        showwarning('Warning', 'No More pictures')
         
         
 
@@ -109,13 +137,18 @@ def middleClick(event):
 ##########################
 def rightClick(event):
     global rectangleList, numberRectangle, totalRectangle
-    if numberRectangle > 0:
+    if numberImagePerLabel[int(selectFolder)] > 0:
         chaine.configure(text = "Erasing frame number ="+str(numberRectangle))
-        cadre.delete(rectangleList[len(rectangleList)-1])
-        del rectangleList[len(rectangleList)-1]
-        os.remove(outputDirectory+'/name' + str(totalRectangle) + '.png')
+        cadre.delete(rectangleList[int(selectFolder)][len(rectangleList[int(selectFolder)])-1])
+        del rectangleList[int(selectFolder)][len(rectangleList[int(selectFolder)])-1]
+        os.remove(listFolder[int(selectFolder)]+"/"+listLabel[int(selectFolder)] + str(numberTotalImagePerLabel[int(selectFolder)]) + '.png')
+        print(listFolder[int(selectFolder)]+"/"+listLabel[int(selectFolder)] + str(numberTotalImagePerLabel[int(selectFolder)]) + '.png')
         numberRectangle -= 1
         totalRectangle -= 1
+        numberImagePerLabel[int(selectFolder)] = numberImagePerLabel[int(selectFolder)]-1
+        numberTotalImagePerLabel[int(selectFolder)] = numberTotalImagePerLabel[int(selectFolder)]-1
+        
+        
     else:
         chaine.configure(text = "Nothing to erase")
 
@@ -142,6 +175,27 @@ def imageDisplay():
     ############ A MOFIFIER PLUS TARD
     
     
+    
+    
+def folderSelectKey(event):
+    global selectFolder, listFolder, listLabel, labelDisplay
+    
+    key = event.keysym
+    selectFolder=int(key)
+    print(key)
+    if key == "1" or key == "2" or key == "3" or key == "4" or key == "5" or key == "6" or key == "7" or key == "8" or  key == "9" or key == "0":
+        selectFolder = event.keysym
+        if listFolder[int(key)] == "nope":
+            toDo="Select the destination folder of label number "+str(selectFolder)
+            listFolder[int(key)] = askdirectory(title=toDo, initialdir='C:/Users/%s')
+            listLabel[int(key)] = os.path.basename(listFolder[int(key)])
+            labelDisplay = labelDisplay+" Key"+key+"= "+listLabel[int(key)]+" ;"
+            chaineLabels.configure(text = labelDisplay)
+    print(selectFolder)
+    print(listFolder)
+    print(listLabel)
+    chaine.configure(text = "Number of frames:" + str(numberRectangle+1)+" Selected folder: "+listLabel[int(selectFolder)])
+            
 ##########################
 ##########################
 ##########################
@@ -160,6 +214,13 @@ showwarning('Instructions', 'Enter the image folder')
 inputDirectory = askdirectory(initialdir='C:/Users/%s')
 showwarning('Instructions', 'Enter the destination folder')
 outputDirectory = askdirectory(initialdir='C:/Users/%s')
+
+#Set Directory list and display
+listFolder[0] = outputDirectory
+listLabel[0] = os.path.basename(listFolder[0])
+labelDisplay = "Key0= "+listLabel[0]+" ;"
+
+
 #=================
 
 #list images in the forlder
@@ -173,7 +234,7 @@ if len(listPictures)>0:
     imageDisplay()
     cadre = Canvas(fen, width=photo2.width(), height=photo2.height(), bg="light yellow")
     
-    w, h = photo2.width(), photo2.height()+20
+    w, h = photo2.width(), photo2.height()+40
     fen.geometry("%dx%d+0+0" % (w, h))
     
     aff=cadre.create_image(0, 0, anchor=NW, image=photo2) #BUG
@@ -182,8 +243,13 @@ if len(listPictures)>0:
     cadre.bind("<ButtonRelease-1>", releaseLeftClick)
     cadre.bind("<Button-2>", middleClick)
     cadre.bind("<ButtonRelease-3> ", rightClick)
+    cadre.focus_set()
+    cadre.bind("<Key>", folderSelectKey)
     cadre.pack()
+    chaineLabels = Label(fen)
     chaine = Label(fen)
+    chaineLabels.configure(text = labelDisplay)
+    chaineLabels.pack()
     chaine.pack() 
     rectangle=cadre.create_rectangle(0,0,0,0)
     fen.mainloop()
