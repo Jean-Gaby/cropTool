@@ -74,9 +74,11 @@ def leftClick(event):
 def holdLeftClick(event):
     chaine.configure(text = str(event.x)+" "+str(event.y)+"Frame object number "+str(numberRectangle))
     cadre.coords(rectangle, x1,y1,event.x,event.y)
+    #cadre.coords(oval,x1+90,y1+90, event.x-90, event.y-90)
     
 def releaseLeftClick(event):
     cadre.coords(rectangle, 0, 0, 0, 0)
+    cadre.coords(oval, 0, 0, 0, 0)
     global x2,y2,numberRectangle,rectangleList,totalRectangle,hpercent,numberImagePerLabel,numberTotalImagePerLabel
     chaine.configure(text = "Number of frames:" + str(numberRectangle+1)+" Selected folder: "+listLabel[int(selectFolder)])
     x2=event.x
@@ -88,8 +90,7 @@ def releaseLeftClick(event):
     numberTotalImagePerLabel[int(selectFolder)] = numberTotalImagePerLabel[int(selectFolder)]+1
     
 
-    print(numberTotalImagePerLabel)
-    print(numberImagePerLabel)
+
 
     
     ####Selection orientation management PART#####
@@ -142,7 +143,6 @@ def rightClick(event):
         cadre.delete(rectangleList[int(selectFolder)][len(rectangleList[int(selectFolder)])-1])
         del rectangleList[int(selectFolder)][len(rectangleList[int(selectFolder)])-1]
         os.remove(listFolder[int(selectFolder)]+"/"+listLabel[int(selectFolder)] + str(numberTotalImagePerLabel[int(selectFolder)]) + '.png')
-        print(listFolder[int(selectFolder)]+"/"+listLabel[int(selectFolder)] + str(numberTotalImagePerLabel[int(selectFolder)]) + '.png')
         numberRectangle -= 1
         totalRectangle -= 1
         numberImagePerLabel[int(selectFolder)] = numberImagePerLabel[int(selectFolder)]-1
@@ -182,7 +182,7 @@ def folderSelectKey(event):
     
     key = event.keysym
     selectFolder=int(key)
-    print(key)
+
     if key == "1" or key == "2" or key == "3" or key == "4" or key == "5" or key == "6" or key == "7" or key == "8" or  key == "9" or key == "0":
         selectFolder = event.keysym
         if listFolder[int(key)] == "nope":
@@ -191,9 +191,7 @@ def folderSelectKey(event):
             listLabel[int(key)] = os.path.basename(listFolder[int(key)])
             labelDisplay = labelDisplay+" Key"+key+"= "+listLabel[int(key)]+" ;"
             chaineLabels.configure(text = labelDisplay)
-    print(selectFolder)
-    print(listFolder)
-    print(listLabel)
+
     chaine.configure(text = "Number of frames:" + str(numberRectangle+1)+" Selected folder: "+listLabel[int(selectFolder)])
             
 ##########################
@@ -226,8 +224,10 @@ labelDisplay = "Key0= "+listLabel[0]+" ;"
 #list images in the forlder
 listPictures = sorted(glob.glob(inputDirectory + '/*.png'))
 listPictures2 = sorted(glob.glob(inputDirectory + '/*.jpg'))
-listPictures = listPictures + listPictures2
-print(listPictures)
+listPictures3 = sorted(glob.glob(inputDirectory + '/*.tif'))
+
+listPictures = listPictures + listPictures2 + listPictures3
+
 
 ###
 if len(listPictures)>0:
@@ -252,11 +252,9 @@ if len(listPictures)>0:
     chaineLabels.pack()
     chaine.pack() 
     rectangle=cadre.create_rectangle(0,0,0,0)
+    oval=cadre.create_oval(0,0,0,0)
     fen.mainloop()
     os.remove("temporaryFile.png")
 else:
     showwarning('Error', 'There are no images in the folder')
     fen.destroy()
-    
-
-
